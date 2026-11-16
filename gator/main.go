@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -9,7 +8,7 @@ import (
 )
 
 type state struct {
-	ptrConfig *config.Config
+	ptrCfg *config.Config
 }
 
 func main() {
@@ -17,13 +16,14 @@ func main() {
 	if err != nil {
 		log.Fatalf("error reading config: %v", err)
 	}
+
 	s := &state{
-		ptrConfig: &cfg,
+		ptrCfg: &cfg,
 	}
 
-	cmds := &commands{}
-	cmds.registeredCommands = make(map[string]func(*state, command) error)
-
+	cmds := &commands{
+		registeredCommands: make(map[string]func(*state, command) error),
+	}
 	cmds.register("login", handlerLogin)
 
 	userInput := os.Args
@@ -38,6 +38,6 @@ func main() {
 
 	err = cmds.run(s, cmd)
 	if err != nil {
-		fmt.Print(err)
+		log.Fatal(err)
 	}
 }
