@@ -4,11 +4,16 @@ import (
 	"log"
 	"os"
 
+	"database/sql"
+
 	"github.com/BirchNorman/gator/internal/config"
+	"github.com/BirchNorman/gator/internal/database"
+	_ "github.com/lib/pq"
 )
 
 type state struct {
 	ptrCfg *config.Config
+	db     *database.Queries
 }
 
 func main() {
@@ -17,14 +22,18 @@ func main() {
 		log.Fatalf("error reading config: %v", err)
 	}
 
+	db, err := sql.Open("postgres", cfg.DbURL)
+
 	s := &state{
 		ptrCfg: &cfg,
+		db:     database.New(db),
 	}
 
 	cmds := &commands{
 		registeredCommands: make(map[string]func(*state, command) error),
 	}
 	cmds.register("login", handlerLogin)
+	cmds.register("register", handlerRegister)
 
 	userInput := os.Args
 	if len(userInput) < 2 {
@@ -40,4 +49,5 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 }
