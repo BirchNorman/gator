@@ -11,7 +11,6 @@ const configFileName = ".gatorconfig.json"
 type Config struct {
 	DbURL           string `json:"db_url"`
 	CurrentUserName string `json:"current_user_name"`
-	// CurrentUser     database.User `json:"current_user"` //
 }
 
 func getConfigFilePath() (string, error) {
