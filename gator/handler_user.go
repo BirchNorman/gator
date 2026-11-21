@@ -74,3 +74,14 @@ func handlerUsers(s *state, cmd command) error {
 
 	return nil
 }
+
+func handlerAgg(s *state, cmd command) error {
+	feedURL := "https://www.wagslane.dev/index.xml"
+	rssFeed, err := fetchFeed(context.Background(), feedURL)
+	if err != nil {
+		return fmt.Errorf("handlerAgg fetchFeed error: %w", err)
+	}
+	fmt.Print(rssFeed)
+
+	return nil
+}
