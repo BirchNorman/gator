@@ -85,3 +85,40 @@ func handlerAgg(s *state, cmd command) error {
 
 	return nil
 }
+
+func handlerAddFeed(s *state, cmd command) error {
+	if len(cmd.args) != 2 {
+		log.Fatal("a feed name and URL are required")
+	}
+
+	feedName := cmd.args[0]
+	feedUrl := cmd.args[1]
+
+	dbUser, err := s.db.GetUser(context.Background(), s.ptrCfg.CurrentUserName)
+	if err != nil {
+		return err
+	}
+
+	arg := database.CreateFeedParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Name:      feedName,
+		Url:       feedUrl,
+		UserID:    dbUser.ID,
+	}
+
+	feed, err := s.db.CreateFeed(context.Background(), arg)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(feed.ID)
+	fmt.Println(feed.CreatedAt)
+	fmt.Println(feed.UpdatedAt)
+	fmt.Println(feed.Name)
+	fmt.Println(feed.Url)
+	fmt.Println(feed.UserID)
+
+	return err
+}
