@@ -120,5 +120,31 @@ func handlerAddFeed(s *state, cmd command) error {
 	fmt.Println(feed.Url)
 	fmt.Println(feed.UserID)
 
-	return err
+	return nil
+}
+
+func handlerFeeds(s *state, cmd command) error {
+	if len(cmd.args) != 0 {
+		log.Fatal("no arguments are required")
+	}
+
+	feeds, err := s.db.GetFeeds(context.Background())
+	if err != nil {
+		return err
+	}
+
+	for _, feed := range feeds {
+
+		creatorName, err := s.db.GetName(context.Background(), feed.UserID)
+		if err != nil {
+			return err
+		}
+
+		fmt.Println(feed.Name)
+		fmt.Println(feed.Url)
+		fmt.Println(creatorName)
+
+	}
+
+	return nil
 }
