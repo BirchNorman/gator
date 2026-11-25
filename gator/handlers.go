@@ -120,6 +120,19 @@ func handlerAddFeed(s *state, cmd command) error {
 	fmt.Println(feed.Url)
 	fmt.Println(feed.UserID)
 
+	feedFollowParams := database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		UserID:    dbUser.ID,
+		FeedID:    feed.ID,
+	}
+
+	_, err = s.db.CreateFeedFollow(context.Background(), feedFollowParams)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -144,6 +157,61 @@ func handlerFeeds(s *state, cmd command) error {
 		fmt.Println(feed.Url)
 		fmt.Println(creatorName)
 
+	}
+
+	return nil
+}
+
+func handlerFollow(s *state, cmd command) error {
+	if len(cmd.args) != 1 {
+		log.Fatal("a url is required")
+	}
+
+	feedUrl := cmd.args[0]
+
+	feed, err := s.db.GetFeedFromURL(context.Background(), feedUrl)
+	if err != nil {
+		return err
+	}
+
+	dbUser, err := s.db.GetUser(context.Background(), s.ptrCfg.CurrentUserName)
+	if err != nil {
+		return err
+	}
+
+	feedFollowParams := database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		UserID:    dbUser.ID,
+		FeedID:    feed.ID,
+	}
+
+	_, err = s.db.CreateFeedFollow(context.Background(), feedFollowParams)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(dbUser.Name)
+	fmt.Println(feed.Name)
+
+	return nil
+}
+
+func handlerFollowing(s *state, cmd command) error {
+
+	user, err := s.db.GetUser(context.Background(), s.ptrCfg.CurrentUserName)
+	if err != nil {
+		return err
+	}
+
+	feedFollowsForUserRows, err := s.db.GetFeedFollowsForUser(context.Background(), user.ID)
+	if err != nil {
+		return err
+	}
+
+	for _, row := range feedFollowsForUserRows {
+		fmt.Println(row.FeedName)
 	}
 
 	return nil
