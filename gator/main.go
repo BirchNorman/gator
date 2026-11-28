@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 
@@ -70,4 +71,26 @@ func middlewareLoggedIn(handler func(s *state, cmd command, user database.User) 
 		err = handler(s, cmd, user)
 		return err
 	}
+}
+
+func scrapeFeeds(s *state) error {
+	nextFeed, err := s.db.GetNextFeedToFetch(context.Background())
+	if err != nil {
+		return err
+	}
+	err = s.db.MarkFeedFetched(context.Background(), nextFeed.ID)
+	if err != nil {
+		return nil
+	}
+
+	RSSFeed, err := fetchFeed(context.Background(), nextFeed.Url)
+	if err != nil {
+		return nil
+	}
+
+	for _, item := range RSSFeed.Channel.Items {
+		fmt.Println(item.Title)
+	}
+
+	return nil
 }

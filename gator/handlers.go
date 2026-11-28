@@ -76,14 +76,22 @@ func handlerUsers(s *state, cmd command) error {
 }
 
 func handlerAgg(s *state, cmd command) error {
-	feedURL := "https://www.wagslane.dev/index.xml"
-	rssFeed, err := fetchFeed(context.Background(), feedURL)
-	if err != nil {
-		return fmt.Errorf("handlerAgg fetchFeed error: %w", err)
-	}
-	fmt.Print(rssFeed)
 
-	return nil
+	if len(cmd.args) != 1 {
+		log.Fatal("a duration string is required")
+	}
+	time_between_reqs := cmd.args[0]
+
+	timeBetweenRequests, err := time.ParseDuration(time_between_reqs)
+	if err != nil {
+		return err
+	}
+
+	ticker := time.NewTicker(timeBetweenRequests)
+	fmt.Printf("\nCollecting feeds every %v", time_between_reqs)
+	for ; ; <-ticker.C {
+		scrapeFeeds(s)
+	}
 }
 
 func handlerAddFeed(s *state, cmd command, user database.User) error {
